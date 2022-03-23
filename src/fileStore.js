@@ -2,6 +2,12 @@ import axios from "axios";
 import sharp from "sharp";
 import minimist from "minimist";
 
+//base url have to set it on .env file
+const imageBaseUrl = "https://cataas.com/cat/says/";
+
+//Costants
+const fileName = "cat-card.jpeg";
+
 const argv = minimist(process.argv.slice(2));
 let {
   greeting = "Hello",
@@ -12,34 +18,36 @@ let {
   size = 100,
 } = argv;
 
-const firstReq = `https://cataas.com/cat/says/${greeting}?width=${width}&height=${height}&color=${color}&s=${size}`;
-console.log(firstReq);
-const secondReq = `https://cataas.com/cat/says/${who}?width=${width}&height=${height}&color=${color}&s=${size}`;
+const firstReq = `${imageBaseUrl}${greeting}?width=${width}&height=${height}&color=${color}&s=${size}`;
 
-async function compositeImages(image1, image2) {
+const secondReq = `${imageBaseUrl}${who}?width=${width}&height=${height}&color=${color}&s=${size}`;
+
+//function for bind images together
+const compositeImages = async (image1, image2) => {
   try {
     const data = await sharp(image1)
       .composite([
         {
           input: image2,
           top: 0,
-          left: 400,
+          left: width,
         },
       ])
-      .resize(800, 500)
-      .png()
-      .toFile("cat-card.jpeg");
+      .resize(width * 2, height)
+      .jpeg()
+      .toFile(fileName);
   } catch (error) {
     console.log(error);
   }
-}
+};
 
+//get frist image
 axios
-  .get(firstReq)
+  .get(firstReq, { responseType: "stream" })
   .then((res1) => {
-    // console.log("res1", Buffer.from(res1.data).toString("base64"));
+    // get secoud image
     axios
-      .get(secondReq)
+      .get(secondReq, { responseType: "stream" })
       .then((res2) => {
         compositeImages(
           Buffer.from(res1.data, "binary"),
@@ -47,9 +55,9 @@ axios
         );
       })
       .catch((error) => {
-        console.error(error);
+        console.error("error2", error);
       });
   })
   .catch((error) => {
-    console.error(error);
+    console.error("error1", error);
   });
