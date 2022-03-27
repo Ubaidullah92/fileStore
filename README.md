@@ -13,9 +13,9 @@ Git
 Common setup
 Clone the repo and install the dependencies.
 
-## git clone https://github.com/contentful/the-example-app.nodejs.git
+## git clone https://github.com/Ubaidullah92/fileStore.git
 
-## cd the-example-app.nodejs
+## cd fileStore
 
 ## npm install
 
